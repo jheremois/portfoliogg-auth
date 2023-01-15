@@ -1,6 +1,9 @@
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth2';
 import mysql from 'mysql2/promise';
+import dotenv from "dotenv";
+
+dotenv.config({path: './.env'})
 
 const pool = mysql.createPool({
     host: process.env.DB_HOST,
@@ -11,8 +14,13 @@ const pool = mysql.createPool({
 });
 
 
-const GOOGLE_CLIENT_ID: any = `${process.env.GOOGLE_CLIENT_ID}`;
-const GOOGLE_CLIENT_SECRET: any = `${process.env.GOOGLE_CLIENT_SECRET}`;
+const GOOGLE_CLIENT_ID: string = `${process.env.GOOGLE_CLIENT_ID}`;
+const GOOGLE_CLIENT_SECRET: string = `${process.env.GOOGLE_CLIENT_SECRET}`;
+
+console.log({
+  GOOGLE_CLIENT_ID: `${process.env.GOOGLE_CLIENT_ID}`,
+  GOOGLE_CLIENT_SECRET: `${process.env.GOOGLE_CLIENT_SECRET}`,
+});
 
 // Configure the Google strategy for Passport
 passport.use(new GoogleStrategy({
