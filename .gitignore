@@ -3,3 +3,4 @@ nodemon.json
 .env
 thunder-tests
 .keys.json
+src/nono.ts
