@@ -1,13 +1,15 @@
 import express from 'express';
-import passport from '../passport';
+import passport from '../middlewares/passport';
+import jwt from 'jsonwebtoken';
+import enviroments from '../config/enviroments';
 
 const router = express.Router();
 
-const CLIENT_URL = process.env.ALLOW_ORIGIN || "";
+const CLIENT_URL = "http://localhost:3000/profile";
 
-router.get("/logout", (req, res) => {
-    //req.logout();
-    res.redirect(CLIENT_URL);
+router.get("/logout", (req: any, res) => {
+    req.logout();
+    res.redirect("/");
 });
 
 router.get(
@@ -15,20 +17,14 @@ router.get(
     passport.authenticate("google", { scope: ["profile", "email"] })
 );
 
-router.get(
-    "/google/callback",
-    passport.authenticate("google", {
-        successRedirect: CLIENT_URL,
-        failureRedirect: "/login/failed",
-    })
-);
+router.get("/google/callback",
+    passport.authenticate("google", {session: false}),
+    (req: any, res: any) => {
+    // Successful authentication, generate a token and redirect home.
+    console.log("req user: ", req.user);
+    const token = jwt.sign(req.user, enviroments.jwt.secret, { expiresIn: '24h' });
+    res.cookie("token", token, { secure: true, maxAge: 2 * 60 * 60 * 1000 });
+    res.redirect(`${CLIENT_URL}`);
+});
 
 export default router;
-
-/* router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
-
-router.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/', session: false }), (req: any, res: any) => {
-  // Successful authentication, redirect home.
-  const token = jwt.sign({ email: req.user.email }, 'secret', { expiresIn: '24h' });
-  res.redirect(`http://localhost:3000?token=${token}`);
-}); */

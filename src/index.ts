@@ -1,18 +1,17 @@
 import express from "express";
-import dotenv from "dotenv";
 import AuthRoutes from "./router/auth.routes";
+import UserRoutes from "./router/user.routes";
 import http from "http"
 import 'reflect-metadata'
 import passport from "passport";
 import cors from "cors";
 import session from 'express-session';
+import enviroments from "./config/enviroments";
 
 const app = express()
 const server = http.createServer(app);
 
-dotenv.config({path: './.env'})
-
-app.set('port', process.env.APP_PORT)
+app.set('port', enviroments.app.port)
 const port = app.get('port')
 
 const corsOptions = {
@@ -21,11 +20,14 @@ const corsOptions = {
 };
 app.use(cors(corsOptions))
 
-app.use(session({ secret: 'your-secret-key', resave: false, saveUninitialized: false }));
+
+app.use(session({ secret: enviroments.app.secret, resave: false, saveUninitialized: false }));
 app.use(express.json())
 app.use(passport.initialize())
+app.use(passport.session());
 
 app.use('/auth/', AuthRoutes)
+app.use('/user/', UserRoutes())
 app.use('/', (req: any, res: any)=> {
     res.send("Ritme Auth")
 })
